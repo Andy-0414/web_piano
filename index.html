@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+		<style>
+			* {
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			body {
+				width: 100vw;
+				height: 100vh;
+
+				display: flex;
+				justify-content: center;
+			}
+			#piano {
+				font-size: 1.5em;
+				touch-action: none;
+			}
+			#piano div {
+				margin: 0;
+				padding: 0;
+				list-style: none;
+				position: relative;
+				float: left;
+			}
+			.white {
+				height: 16em;
+				width: 4em;
+				z-index: 1;
+				background: linear-gradient(45deg, #fff 0%, #bbb 100%);
+				border-radius: 0 0 10px 10px;
+				box-shadow: 0px 10px 0px rgba(100, 100, 100, 0.5);
+			}
+			.black {
+				height: 8em;
+				width: 2em;
+				margin: 0 0 0 -1em !important;
+				z-index: 2;
+				background: linear-gradient(45deg, #222 0%, #555 100%);
+				border-radius: 0 0 10px 10px;
+			}
+			.white.active {
+				background: linear-gradient(45deg, #bbb 0%, #fff 100%);
+				top: 9px;
+				box-shadow: 0px 1px 0px rgba(100, 100, 100, 0.5);
+			}
+			.black.active {
+				background: linear-gradient(45deg, #555 0%, #222 100%);
+			}
+			.black + .white {
+				margin: 0 0 0 -1em !important;
+			}
+		</style>
+		<script src="./audiosynth.js"></script>
+	</head>
+	<body>
+		<div id="piano">
+			<div data-key="C" data-oc="4" class="white"></div>
+			<div data-key="C#" data-oc="4" class="black"></div>
+			<div data-key="D" data-oc="4" class="white"></div>
+			<div data-key="D#" data-oc="4" class="black"></div>
+			<div data-key="E" data-oc="4" class="white"></div>
+			<div data-key="F" data-oc="4" class="white"></div>
+			<div data-key="F#" data-oc="4" class="black"></div>
+			<div data-key="G" data-oc="4" class="white"></div>
+			<div data-key="G#" data-oc="4" class="black"></div>
+			<div data-key="A" data-oc="4" class="white"></div>
+			<div data-key="A#" data-oc="4" class="black"></div>
+			<div data-key="B" data-oc="4" class="white"></div>
+			<div data-key="C" data-oc="5" class="white"></div>
+			<div data-key="C#" data-oc="5" class="black"></div>
+			<div data-key="D" data-oc="5" class="white"></div>
+			<div data-key="D#" data-oc="5" class="black"></div>
+			<div data-key="E" data-oc="5" class="white"></div>
+			<div data-key="F" data-oc="5" class="white"></div>
+			<div data-key="F#" data-oc="5" class="black"></div>
+			<div data-key="G" data-oc="5" class="white"></div>
+			<div data-key="G#" data-oc="5" class="black"></div>
+			<div data-key="A" data-oc="5" class="white"></div>
+			<div data-key="A#" data-oc="5" class="black"></div>
+			<div data-key="B" data-oc="5" class="white"></div>
+			<div data-key="C" data-oc="6" class="white"></div>
+		</div>
+	</body>
+	<script>
+		var piano = Synth.createInstrument("piano");
+		var touchStack = [];
+		addEventListener("contextmenu", e => {
+			e.preventDefault();
+		});
+		addEventListener("touchstart", e => {
+			if (
+				e.target.classList.contains("black") ||
+				e.target.classList.contains("white")
+			) {
+				piano.play(e.target.dataset.key, e.target.dataset.oc, 2);
+				e.target.classList.add("active");
+				touchStack.push(e.target);
+			}
+		});
+		addEventListener("touchmove", e => {
+			tmpTarget = document.elementFromPoint(
+				e.touches[0].clientX,
+				e.touches[0].clientY
+			);
+			if (
+				tmpTarget.classList.contains("black") ||
+				tmpTarget.classList.contains("white")
+			) {
+				piano.play(tmpTarget.dataset.key, tmpTarget.dataset.oc, 2);
+				tmpTarget.classList.add("active");
+				if (touchStack.indexOf(tmpTarget) == -1)
+					touchStack.push(tmpTarget);
+			}
+		});
+		addEventListener("touchend", e => {
+			if (
+				e.target.classList.contains("black") ||
+				e.target.classList.contains("white")
+			) {
+				e.target.classList.remove("active");
+				if (e.touches.length == 0) {
+					touchStack.forEach(x => {
+						x.classList.remove("active");
+					});
+				}
+			}
+		});
+	</script>
+</html>
